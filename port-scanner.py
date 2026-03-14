@@ -3,19 +3,20 @@ import threading
 import argparse
 from queue import Queue
 
+def is_port_open(target, port, timeout = 1):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(timeout)
+            return s.connect_ex((target, port)) == 0
+    except:
+        return False
+    
 def scan(target, queue):
     while not queue.empty():
         port = queue.get()
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(1)
-            if s.connect_ex((target, port)) == 0:
-                print(f"[*] Port {port} is open")
-            s.close()
-        except:
-            pass
-        finally:
-            queue.task_done()
+        if is_port_open(target, port):
+            print(f"[*] Port {port} is open")
+        queue.task_done()
 
 def main():
     parser = argparse.ArgumentParser(description="A simple threaded port scanner.")
