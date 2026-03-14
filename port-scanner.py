@@ -1,6 +1,7 @@
 import socket
 import threading
 import argparse
+import time
 from queue import Queue
 
 def is_port_open(target, port, timeout = 1):
@@ -27,6 +28,9 @@ def main():
 
     args = parser.parse_args()
 
+    print(f"\n--- Starting Scan on {args.target} ---")
+    start_time = time.time()
+
     target = args.target
     queue = Queue()
 
@@ -41,7 +45,10 @@ def main():
         t.start()
 
     queue.join()
-    print("--- Scan Complete ---")
+
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"--- Scan Completed in {duration:.2f} seconds ---\n")
 
 if __name__ == "__main__":
     main()
