@@ -4,6 +4,19 @@ import argparse
 import time
 from queue import Queue
 
+def greet_banner(target, port):
+    """ Tries to identify the service version.
+    """
+    try:
+        with socket.socket() as s:
+            s.settimeout(2)
+            s.connect((target, port))
+            s.send(b"Hello\r\n")
+            banner = s.recv(1024).decode(errors='ignore').strip()
+            return banner if banner else "No banner response"
+    except:
+        return "Unknown Service"
+
 def is_port_open(target, port, timeout = 1):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
