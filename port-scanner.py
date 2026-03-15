@@ -2,6 +2,7 @@ import socket
 import threading
 import argparse
 import time
+import sys
 from queue import Queue
 
 def is_port_open(target, port, timeout = 1):
@@ -42,12 +43,16 @@ def main():
 
     print(f"--- Scanning {target} from port {args.start} to {args.end} ---")
 
-    for _ in range(args.threads):
-        t = threading.Thread(target=scan, args=(target, queue, args.verbose))
-        t.daemon = True 
-        t.start()
-
-    queue.join()
+    # Thread Management
+    try:
+        for _ in range(args.threads):
+            t = threading.Thread(target=scan, args=(target, queue, args.verbose))
+            t.daemon = True 
+            t.start()
+    
+        queue.join()
+    except KeyboardInterrupt:
+        sys.exit()
 
     end_time = time.time()
     duration = end_time - start_time
