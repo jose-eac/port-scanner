@@ -12,11 +12,13 @@ def is_port_open(target, port, timeout = 1):
     except:
         return False
     
-def scan(target, queue):
+def scan(target, queue, verbose):
     while not queue.empty():
         port = queue.get()
         if is_port_open(target, port):
             print(f"[*] Port {port} is open")   
+        elif verbose:
+            print(f"[*] Port {port} is closed")
         queue.task_done()
 
 def main():
@@ -25,6 +27,7 @@ def main():
     parser.add_argument("-s", "--start", type=int, default=1, help="Starting port (default: 1)")
     parser.add_argument("-e", "--end", type=int, default=1024, help="Ending port (default: 1024)")
     parser.add_argument("-t", "--threads", type=int, default=100, help="Number of threads (default: 100)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show closed ports")
 
     args = parser.parse_args()
 
@@ -40,7 +43,7 @@ def main():
     print(f"--- Scanning {target} from port {args.start} to {args.end} ---")
 
     for _ in range(args.threads):
-        t = threading.Thread(target=scan, args=(target, queue))
+        t = threading.Thread(target=scan, args=(target, queue, args.verbose))
         t.daemon = True 
         t.start()
 
