@@ -5,6 +5,8 @@ import time
 import sys
 from queue import Queue
 
+print_lock = threading.Lock()
+
 def is_port_open(target, port, timeout = 1):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -16,10 +18,13 @@ def is_port_open(target, port, timeout = 1):
 def scan(target, queue, verbose):
     while not queue.empty():
         port = queue.get()
-        if is_port_open(target, port):
-            print(f"[*] Port {port} is open")   
-        elif verbose:
-            print(f"[*] Port {port} is closed")
+        is_open = is_port_open(target, port)
+
+        with print_lock:
+            if is_open:
+                print(f"[*] Port {port:5} is open")   
+            elif verbose:
+                print(f"[*] Port {port:5} is closed")
         queue.task_done()
 
 def main():
